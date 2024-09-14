@@ -17,7 +17,7 @@ cbar = CBar(cmap='gray',    # see https://cmap-docs.readthedocs.io/en/latest/cat
 im_cbar = cbar.draw(im)  # draw colorbar!
 im_cbar.show()
 ```
-
+![cbar](https://github.com/user-attachments/assets/fdfc61f8-6aeb-4895-9050-f349037675c6)
 
 `draw()` returns a [`PIL.Image`](https://pillow.readthedocs.io/en/stable/reference/Image.html) that is shown via [`show()`](https://pillow.readthedocs.io/en/stable/reference/ImageShow.html) and saved via [`save()`](https://pillow.readthedocs.io/en/stable/reference/Image.html#PIL.Image.Image.save)
 ```python
