@@ -23,19 +23,18 @@ class CBar:
     def save(self, filepath, im, apply_cmap=True, vertical=VERTICAL, pad=PAD, pad_color=PAD_COLOR, x=X, y=Y,
              width=WIDTH, length=LENGTH, label=None, ticks=None, fontsize=20, linecolor='w', linewidth=2, tick_len=2):
         im = Image.fromarray(self.cmap(im) if apply_cmap else im)
-        im_size = add_padding(im.copy(), vertical, pad, pad_color, x).size
+        im = add_padding(im, vertical, pad, pad_color, x)
         SurfaceClass = get_surface_class(filepath.split('.')[-1])
-        with SurfaceClass(filepath, im_size[0], im_size[1]) as surface:
+        with SurfaceClass(filepath, im.size[0], im.size[1]) as surface:
             ctx = Context(surface)
             ctx = draw_background(ctx, pad_color)
-            pad_box = get_pad_box(vertical, pad, x)
-            ctx.set_source_surface(from_pil(im.convert('RGBA')), *pad_box)
+            ctx.set_source_surface(from_pil(im.convert('RGBA')))
             ctx.paint()
-            self.set_draw_objects(im_size, vertical, x, y, width, length, ticks, label, fontsize, tick_len, linewidth)
+            self.set_draw_objects(im.size, vertical, x, y, width, length, ticks, label, fontsize, tick_len, linewidth)
             lw = max(linewidth, 1.3)
             patches = [{'xy': [self._rectangle['xy'][0] + lw, self._rectangle['xy'][1] + lw],
                         'im': self._bar.crop((lw + 1, lw + 1, self._bar.size[0], self._bar.size[1]))}]
-            draw_objects(ctx, patches, [self._rectangle], self._lines, self._texts, linecolor, pad_box)
+            draw_objects(ctx, patches, [self._rectangle], self._lines, self._texts, linecolor)
             surface.finish()
 
     def draw(self, im, apply_cmap=True, vertical=VERTICAL, pad=PAD, pad_color=PAD_COLOR, x=X, y=Y, width=WIDTH,
