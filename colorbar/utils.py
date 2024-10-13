@@ -58,7 +58,7 @@ def draw(im, rectangle=None, lines=None, texts=None, font=FONT, linecolor='white
     if rectangle is not None:
         draw.rectangle(**rectangle, outline=fill)
     for line in lines:
-        draw.line(**line, fill=line['fill'] if 'fill' in line else fill)
+        draw.line(**line) if 'fill' in line else draw.line(**line, fill=fill)
     for text in texts:
         text_kwargs = {}#'stroke_width': 1, 'stroke_fill': 'white' if linecolor == 'black' else 'black'}
         for k, v in text.items():
