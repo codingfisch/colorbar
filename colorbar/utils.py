@@ -94,9 +94,13 @@ def get_surface_class(filetype='pdf'):
     return {'svg': cairo.SVGSurface, 'eps': cairo.PSSurface, 'ps': cairo.PSSurface, 'pdf': cairo.PDFSurface}[filetype]
 
 
+def get_source_rgba(color):
+    rgba = get_color_values([color, color, color] if isinstance(color, int) else color, n_channels=4)
+    return [c / 255 for c in rgba]
+
+
 def draw_objects(ctx, patches=None, rectangles=None, lines=None, texts=None, linecolor='white', box=(0, 0)):
-    fill = get_color_values(linecolor)
-    ctx.set_source_rgba(*fill)
+    ctx.set_source_rgba(*get_source_rgba(linecolor))
     if rectangles is not None:
         for rectangle in rectangles:
             draw_rectangle(ctx, box=box, **rectangle)
@@ -111,22 +115,35 @@ def draw_objects(ctx, patches=None, rectangles=None, lines=None, texts=None, lin
             draw_patch(ctx, box=box, **patch)
 
 
-def draw_rectangle(ctx, xy, width, box=(0, 0)):
+def draw_rectangle(ctx, xy, width, box=(0, 0), fill=None):
+    if fill is not None:
+        ctx_fill = ctx.get_source().get_rgba()
+        ctx.set_source_rgba(*get_source_rgba(fill))
     ctx.set_line_width(max(width, 1.3))
     ctx.rectangle(xy[0] + width / 2 + box[0], xy[1] + width / 2 + box[1],
                   xy[2] - xy[0] - width + 1, xy[3] - xy[1] - width + 1)
     #ctx.stroke()
+    if fill is not None:
+        ctx.set_source_rgba(*ctx_fill)
 
 
-def draw_line(ctx, xy, width, box=(0, 0)):
+def draw_line(ctx, xy, width, box=(0, 0), fill=None):
+    if fill is not None:
+        ctx_fill = ctx.get_source().get_rgba()
+        ctx.set_source_rgba(*get_source_rgba(fill))
     ctx.set_line_width(max(width, 1.3))
     d = min(width / 2, 1)
     ctx.move_to(xy[0] + d + box[0], xy[1] + d + box[1])
     ctx.line_to(xy[2] + d + box[0], xy[3] + d + box[1])
     ctx.stroke()
+    if fill is not None:
+        ctx.set_source_rgba(*ctx_fill)
 
 
-def draw_text(ctx, text, xy, fontsize, box=(0, 0), **kwargs):
+def draw_text(ctx, text, xy, fontsize, box=(0, 0), fill=None, **kwargs):
+    if fill is not None:
+        ctx_fill = ctx.get_source().get_rgba()
+        ctx.set_source_rgba(*get_source_rgba(fill))
     ctx.select_font_face('DejaVuSans', cairo.FONT_SLANT_NORMAL, cairo.FONT_WEIGHT_NORMAL)
     ctx.set_font_size(fontsize)
     xbearing, ybearing, width, height, dx, dy = ctx.text_extents(text)
@@ -135,6 +152,8 @@ def draw_text(ctx, text, xy, fontsize, box=(0, 0), **kwargs):
     dy = {'a': 1.25 * height, 't': height, 'm': .5 * height, 'b': 0, 'd': -.25 * height}[anchor[1]]
     ctx.move_to(xy[0] + dx + box[0], xy[1] + dy + box[1])
     ctx.show_text(text)
+    if fill is not None:
+        ctx.set_source_rgba(*ctx_fill)
 
 
 def draw_patch(ctx, im, xy, box=(0, 0)):
