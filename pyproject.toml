@@ -1,6 +1,6 @@
 [tool.poetry]
 name = 'colorbar'
-version = '0.1.5'
+version = '0.2.0'
 description = 'Colorbar in Python. Fast and lightweight!'
 authors = ['codingfisch <l_fisc17@wwu.de>']
 license = 'MIT'
