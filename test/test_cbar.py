@@ -28,9 +28,9 @@ class TestCBar(unittest.TestCase):
                         im_cbar = cbar.draw(im.copy(), apply_cmap=True, vertical=vertical, **kwargs)
                         kwarg_string = '_'.join([f'{k}-{v}' for k, v in kwargs.items()])
                         filename = f'{cmap}_{vmin}_{vmax}_' + kwarg_string + f'_vertical-{vertical}'
-                        im_cbar.save(f'{DATA_PATH}/draw/{filename}.png')  # Uncomment and run before version bump
-                        # im_cbar_old = Image.open(f'{DATA_PATH}/draw/{filename}.png')
-                        # self.assertTrue(np.array_equal(to_numpy(im_cbar), to_numpy(im_cbar_old)))
+                        # im_cbar.save(f'{DATA_PATH}/draw/{filename}.png')  # Uncomment and run before version bump
+                        im_cbar_old = Image.open(f'{DATA_PATH}/draw/{filename}.png')
+                        self.assertTrue(np.array_equal(to_numpy(im_cbar), to_numpy(im_cbar_old)))
 
     def test_save(self, shape=(400, 800)):  # only passes if output is pixel-wise identical to "test/save/draw"
         im = np.linspace(0, 1, shape[0] * shape[1]).reshape(*shape)
@@ -49,9 +49,9 @@ class TestCBar(unittest.TestCase):
                         os.remove(f'{tmp_filename}.png')
                         kwarg_string = '_'.join([f'{k}-{v}' for k, v in kwargs.items()])
                         filename = f'{cmap}_{vmin}_{vmax}_' + kwarg_string + f'_vertical-{vertical}'
-                        im_cbar.save(f'{DATA_PATH}/save/{filename}.png')  # Uncomment and run before version bump
-                        # im_cbar_old = Image.open(f'{DATA_PATH}/save/{filename}.png')
-                        # self.assertTrue(np.array_equal(to_numpy(im_cbar), to_numpy(im_cbar_old)))
+                        # im_cbar.save(f'{DATA_PATH}/save/{filename}.png')  # Uncomment and run before version bump
+                        im_cbar_old = Image.open(f'{DATA_PATH}/save/{filename}.png')
+                        self.assertTrue(np.array_equal(to_numpy(im_cbar), to_numpy(im_cbar_old)))
 
 
 if __name__ == "__main__":

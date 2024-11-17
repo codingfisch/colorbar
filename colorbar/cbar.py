@@ -21,7 +21,8 @@ class CBar:
         self._texts = []
 
     def save(self, filepath, im, apply_cmap=True, vertical=VERTICAL, pad=PAD, pad_color=PAD_COLOR, x=X, y=Y,
-             width=WIDTH, length=LENGTH, label=None, ticks=None, fontsize=20, linecolor='w', linewidth=2, tick_len=2):
+             width=WIDTH, length=LENGTH, label=None, ticks=None, fontsize=20, linecolor='w', linewidth=2, tick_len=2,
+             tick_format='.5g'):
         im = Image.fromarray(self.cmap(im) if apply_cmap else im)
         im = add_padding(im, vertical, pad, pad_color, x)
         SurfaceClass = get_surface_class(filepath.split('.')[-1])
@@ -30,7 +31,8 @@ class CBar:
             ctx = draw_background(ctx, pad_color)
             ctx.set_source_surface(from_pil(im.convert('RGBA')))
             ctx.paint()
-            self.set_draw_objects(im.size, vertical, x, y, width, length, ticks, label, fontsize, tick_len, linewidth)
+            self.set_draw_objects(im.size, vertical, x, y, width, length, ticks,
+                                  label, fontsize, tick_len, linewidth, tick_format)
             lw = max(linewidth, 1.3)
             patches = [{'xy': [self._rectangle['xy'][0] + lw, self._rectangle['xy'][1] + lw],
                         'im': self._bar.crop((lw + 1, lw + 1, self._bar.size[0], self._bar.size[1]))}]
@@ -38,10 +40,12 @@ class CBar:
             surface.finish()
 
     def draw(self, im, apply_cmap=True, vertical=VERTICAL, pad=PAD, pad_color=PAD_COLOR, x=X, y=Y, width=WIDTH,
-             length=LENGTH, label=None, ticks=None, fontsize=20, linecolor='w', linewidth=2, tick_len=2, asarray=False):
+             length=LENGTH, label=None, ticks=None, fontsize=20, linecolor='w', linewidth=2, tick_len=2,
+             tick_format='.5g', asarray=False):
         im = Image.fromarray(self.cmap(im) if apply_cmap else im)
         im = add_padding(im, vertical, pad, pad_color, x)
-        self.set_draw_objects(im.size, vertical, x, y, width, length, ticks, label, fontsize, tick_len, linewidth)
+        self.set_draw_objects(im.size, vertical, x, y, width, length, ticks,
+                              label, fontsize, tick_len, linewidth, tick_format)
         im.paste(self._bar, self._bar_box)
         return draw(im, self._rectangle, self._lines, self._texts, self.font, linecolor, asarray)
 
@@ -55,9 +59,9 @@ class CBar:
         bar = bar if vertical else bar.swapaxes(0, 1)
         return Image.fromarray(self.cmap(bar))
 
-    def get_tick_positions(self, ticks, vmin, vmax, bar_box, vertical):
+    def get_tick_positions(self, ticks, vmin, vmax, bar_box, vertical, format):
         ticks = tick_values(self.vmin, self.vmax) if ticks is None else ticks
-        tick_dict = ticks if isinstance(ticks, dict) else {v: f'{v:.4g}' for v in ticks}
+        tick_dict = ticks if isinstance(ticks, dict) else {v: f'{v:{format}}' for v in ticks}
         tick_positions = {}
         for value, label in tick_dict.items():
             if vmin <= value <= vmax:
@@ -65,10 +69,11 @@ class CBar:
                 tick_positions.update({label: position})
         return tick_positions
 
-    def set_draw_objects(self, im_size, vertical, x, y, width, length, ticks, label, fontsize, tick_len, linewidth):
+    def set_draw_objects(self, im_size, vertical, x, y, width, length, ticks, label, fontsize, tick_len, linewidth,
+                         tick_format):
         self._bar = self.get_bar(im_size, self.vmin, self.vmax, vertical, width, length)
         self._bar_box = self.get_bar_box(im_size, self._bar.size, vertical, x, y)
-        tick_positions = self.get_tick_positions(ticks, self.vmin, self.vmax, self._bar_box, vertical)
+        tick_positions = self.get_tick_positions(ticks, self.vmin, self.vmax, self._bar_box, vertical, tick_format)
         self._rectangle = self.get_bar_frame(self._bar_box, linewidth)
         self._lines = self.get_tick_lines(tick_positions, vertical, tick_len, linewidth)
         texts = self.get_tick_texts(tick_positions, vertical, int(.8 * fontsize), tick_len, linewidth)
